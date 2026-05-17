@@ -2,35 +2,46 @@ package base;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import utils.ConfigReader;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.time.Duration;
 
+/**
+ * Base test class responsible for Appium driver setup
+ * and teardown for Android UI automation tests.
+ */
 public class BaseTest {
 
-    protected static AndroidDriver driver;
+    protected static AndroidDriver driver = null;
 
-    public static void setUp() throws MalformedURLException {
+    protected static void setUp() throws MalformedURLException {
         UiAutomator2Options options = new UiAutomator2Options()
-                .setPlatformName("Android")
-                .setDeviceName("Android Emulator")
-                .setAutomationName("UiAutomator2")
-                .setAppPackage("com.example.app")
-                .setAppActivity("com.example.app.MainActivity")
-                .setNoReset(true);
+                .setPlatformName(ConfigReader.getProperty("platformName"))
+                .setDeviceName(ConfigReader.getProperty("deviceName"))
+                .setAutomationName(ConfigReader.getProperty("automationName"))
+                .setAppPackage(ConfigReader.getProperty("appPackage"))
+                .setAppActivity(ConfigReader.getProperty("appActivity"));
 
         driver = new AndroidDriver(
-                new URL("http://127.0.0.1:4723"),
-                options
+            URI.create(
+                ConfigReader.getProperty("appiumServerUrl")
+            ).toURL(),
+            options
         );
 
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(
+            Duration.ofSeconds(
+                ConfigReader.getIntProperty("implicitWait")
+            )
+        );
     }
 
-    public static void tearDown() {
+    protected static void tearDown() {
         if (driver != null) {
             driver.quit();
+            driver = null;
         }
     }
 }
