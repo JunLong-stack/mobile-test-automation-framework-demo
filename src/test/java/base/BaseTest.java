@@ -25,17 +25,16 @@ public class BaseTest {
                 .setAppActivity(ConfigReader.getProperty("appActivity"));
 
         driver = new AndroidDriver(
-            URI.create(
-                ConfigReader.getProperty("appiumServerUrl")
-            ).toURL(),
-            options
-        );
+                URI.create(
+                        ConfigReader.getProperty("appiumServerUrl")).toURL(),
+                options);
+
+        driver.activateApp(
+                ConfigReader.getProperty("appPackage"));
 
         driver.manage().timeouts().implicitlyWait(
-            Duration.ofSeconds(
-                ConfigReader.getIntProperty("implicitWait")
-            )
-        );
+                Duration.ofSeconds(
+                        ConfigReader.getIntProperty("implicitWait")));
     }
 
     protected static void tearDown() {
