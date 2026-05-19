@@ -50,6 +50,8 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | BDD              | Cucumber 7.22                       |
 | Test runner      | JUnit 4 + Maven Surefire            |
 | Logging          | SLF4J + Logback                     |
+| Static analysis  | Checkstyle                          |
+| CI               | GitHub Actions (build + validate)   |
 | Target platform  | Android Emulator (API 30+)          |
 | Element insight  | Appium Inspector                    |
 
