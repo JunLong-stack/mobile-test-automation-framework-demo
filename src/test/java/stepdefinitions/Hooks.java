@@ -5,6 +5,8 @@ import io.appium.java_client.android.AndroidDriver;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.ScreenshotUtils;
 
 import java.net.MalformedURLException;
@@ -16,8 +18,11 @@ import java.net.MalformedURLException;
  */
 public class Hooks {
 
+    private static final Logger log = LoggerFactory.getLogger(Hooks.class);
+
     @Before
-    public void initDriver() throws MalformedURLException {
+    public void initDriver(Scenario scenario) throws MalformedURLException {
+        log.info("Starting scenario: {}", scenario.getName());
         DriverFactory.initDriver();
     }
 
@@ -26,7 +31,10 @@ public class Hooks {
         AndroidDriver driver = DriverFactory.getDriver();
 
         if (scenario.isFailed() && driver != null) {
+            log.warn("Scenario failed: {} — capturing screenshot", scenario.getName());
             ScreenshotUtils.capture(driver, scenario);
+        } else {
+            log.info("Scenario finished: {} [{}]", scenario.getName(), scenario.getStatus());
         }
 
         DriverFactory.quitDriver();

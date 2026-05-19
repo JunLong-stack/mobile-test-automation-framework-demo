@@ -206,7 +206,6 @@ It ships with every Android emulator, has no licensing or APK distribution conce
 
 ## Roadmap
 
-- [ ] SLF4J + Logback for structured logging
 - [ ] Bump `appium-java-client` and `selenium-java` to current
 - [ ] Add a sample iOS configuration to demonstrate cross-platform structure
 

@@ -4,6 +4,8 @@ import io.appium.java_client.android.AndroidDriver;
 import io.cucumber.java.Scenario;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +24,7 @@ public class ScreenshotUtils {
         throw new IllegalStateException("Utility class");
     }
 
+    private static final Logger log = LoggerFactory.getLogger(ScreenshotUtils.class);
     private static final Path SCREENSHOT_DIR = Paths.get("target", "screenshots");
     private static final DateTimeFormatter TIMESTAMP =
             DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
@@ -38,7 +41,7 @@ public class ScreenshotUtils {
                     + "_" + LocalDateTime.now().format(TIMESTAMP) + ".png";
             Files.write(SCREENSHOT_DIR.resolve(fileName), screenshot);
         } catch (IOException | RuntimeException e) {
-            System.err.println("Failed to capture screenshot: " + e.getMessage());
+            log.warn("Failed to capture screenshot: {}", e.getMessage());
         }
     }
 

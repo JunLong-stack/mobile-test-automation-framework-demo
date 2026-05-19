@@ -2,6 +2,8 @@ package base;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.ConfigReader;
 
 import java.net.MalformedURLException;
@@ -18,9 +20,13 @@ public class DriverFactory {
         throw new IllegalStateException("Utility class");
     }
 
+    private static final Logger log = LoggerFactory.getLogger(DriverFactory.class);
     private static final ThreadLocal<AndroidDriver> DRIVER = new ThreadLocal<>();
 
     public static void initDriver() throws MalformedURLException {
+        log.info("Initializing AndroidDriver for device '{}'",
+                ConfigReader.getProperty("deviceName"));
+
         UiAutomator2Options options = new UiAutomator2Options()
                 .setPlatformName(ConfigReader.getProperty("platformName"))
                 .setDeviceName(ConfigReader.getProperty("deviceName"))
@@ -47,6 +53,7 @@ public class DriverFactory {
     public static void quitDriver() {
         AndroidDriver driver = DRIVER.get();
         if (driver != null) {
+            log.info("Quitting AndroidDriver");
             driver.quit();
             DRIVER.remove();
         }
