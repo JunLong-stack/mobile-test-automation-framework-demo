@@ -46,9 +46,10 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | ---------------- | ----------------------------------- |
 | Language         | Java 21                             |
 | Build            | Maven                               |
-| Mobile driver    | Appium 2.x (UiAutomator2)           |
-| BDD              | Cucumber 7.15                       |
+| Mobile driver    | Appium 2.x (UiAutomator2) — `java-client` 9.4 |
+| BDD              | Cucumber 7.22                       |
 | Test runner      | JUnit 4 + Maven Surefire            |
+| Logging          | SLF4J + Logback                     |
 | Target platform  | Android Emulator (API 30+)          |
 | Element insight  | Appium Inspector                    |
 
@@ -206,7 +207,6 @@ It ships with every Android emulator, has no licensing or APK distribution conce
 
 ## Roadmap
 
-- [ ] Bump `appium-java-client` and `selenium-java` to current
 - [ ] Add a sample iOS configuration to demonstrate cross-platform structure
 
 ---
