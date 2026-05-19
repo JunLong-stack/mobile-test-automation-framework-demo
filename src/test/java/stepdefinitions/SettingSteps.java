@@ -5,6 +5,8 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.*;
 import org.junit.Assert;
 import pages.SettingsPage;
+import io.cucumber.java.Scenario;
+import utils.ScreenshotUtils;
 
 public class SettingSteps extends BaseTest {
 
@@ -49,12 +51,10 @@ public class SettingSteps extends BaseTest {
     }
 
     @After
-    public void tearDownScenario() {
+    public void tearDownScenario(Scenario scenario) {
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        if (scenario.isFailed() && driver != null) {
+            ScreenshotUtils.capture(driver, scenario);
         }
 
         tearDown();
