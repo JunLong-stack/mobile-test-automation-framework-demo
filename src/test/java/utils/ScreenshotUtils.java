@@ -2,11 +2,13 @@ package utils;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.cucumber.java.Scenario;
+import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +37,12 @@ public class ScreenshotUtils {
                     .getScreenshotAs(OutputType.BYTES);
 
             scenario.attach(screenshot, "image/png", scenario.getName());
+
+            Allure.addAttachment(
+                    scenario.getName(),
+                    "image/png",
+                    new ByteArrayInputStream(screenshot),
+                    "png");
 
             Files.createDirectories(SCREENSHOT_DIR);
             String fileName = sanitize(scenario.getName())

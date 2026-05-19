@@ -49,6 +49,7 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | Mobile driver    | Appium 2.x (UiAutomator2) — `java-client` 9.4 |
 | BDD              | Cucumber 7.22                       |
 | Test runner      | JUnit 4 + Maven Surefire            |
+| Reporting        | Allure 2.29 + Cucumber HTML         |
 | Logging          | SLF4J + Logback                     |
 | Static analysis  | Checkstyle                          |
 | CI               | GitHub Actions (build + validate)   |
@@ -173,14 +174,25 @@ mvn clean test -Dcucumber.filter.tags="@e2e and @android"
 
 After a test run, find:
 
-| Artifact            | Location                                  |
-| ------------------- | ----------------------------------------- |
-| Cucumber HTML       | `target/cucumber-reports/cucumber.html`   |
-| Cucumber JSON       | `target/cucumber-reports/cucumber.json`   |
-| Surefire XML        | `target/surefire-reports/`                |
-| Failure screenshots | `target/screenshots/`                     |
+| Artifact            | Location                                                |
+| ------------------- | ------------------------------------------------------- |
+| Allure raw results  | `target/allure-results/`                                |
+| Allure HTML report  | `target/allure-report/index.html` (after `mvn allure:report`) |
+| Cucumber HTML       | `target/cucumber-reports/cucumber.html`                 |
+| Cucumber JSON       | `target/cucumber-reports/cucumber.json`                 |
+| Surefire XML        | `target/surefire-reports/`                              |
+| Failure screenshots | `target/screenshots/`                                   |
 
-Screenshots are captured automatically in the Cucumber `@After` hook **only when a scenario fails**, then attached to the HTML report via `scenario.attach(...)` so they render inline.
+Screenshots are captured automatically in the Cucumber `@After` hook **only when a scenario fails**, then attached to **both** the Cucumber HTML report (`scenario.attach(...)`) and the Allure report (`Allure.addAttachment(...)`) so they render inline in either viewer.
+
+### Viewing the Allure Report
+
+```bash
+mvn clean test            # produces target/allure-results/
+mvn allure:report         # generates target/allure-report/index.html
+# Or, to open a live server in your browser:
+mvn allure:serve
+```
 
 > _Sample report screenshot can be added at `docs/sample-report.png` and referenced here._
 
