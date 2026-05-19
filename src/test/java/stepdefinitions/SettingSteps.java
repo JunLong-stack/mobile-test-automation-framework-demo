@@ -1,20 +1,17 @@
 package stepdefinitions;
 
-import base.BaseTest;
-import io.cucumber.java.After;
 import io.cucumber.java.en.*;
 import org.junit.Assert;
 import pages.SettingsPage;
-import io.cucumber.java.Scenario;
-import utils.ScreenshotUtils;
 
-public class SettingSteps extends BaseTest {
+public class SettingSteps {
 
     private final SettingsPage settingsPage = new SettingsPage();
 
     @Given("the Settings app is launched")
-    public void theSettingsAppIsLaunched() throws Exception {
-        setUp();
+    public void theSettingsAppIsLaunched() {
+        // Driver lifecycle is owned by Hooks#initDriver; this step
+        // documents the precondition every scenario depends on.
     }
 
     @When("the user opens Network and internet settings")
@@ -48,15 +45,5 @@ public class SettingSteps extends BaseTest {
     public void theSettingScreenShouldBeDisplayed(String settingName) {
         Assert.assertTrue(
                 settingsPage.isSettingScreenDisplayed(settingName));
-    }
-
-    @After
-    public void tearDownScenario(Scenario scenario) {
-
-        if (scenario.isFailed() && driver != null) {
-            ScreenshotUtils.capture(driver, scenario);
-        }
-
-        tearDown();
     }
 }

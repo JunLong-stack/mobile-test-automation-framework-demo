@@ -1,0 +1,54 @@
+package base;
+
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+import utils.ConfigReader;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.time.Duration;
+
+/**
+ * Thread-safe Appium driver lifecycle. One AndroidDriver instance
+ * is kept per thread, enabling parallel scenario execution.
+ */
+public class DriverFactory {
+
+    private DriverFactory() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    private static final ThreadLocal<AndroidDriver> DRIVER = new ThreadLocal<>();
+
+    public static void initDriver() throws MalformedURLException {
+        UiAutomator2Options options = new UiAutomator2Options()
+                .setPlatformName(ConfigReader.getProperty("platformName"))
+                .setDeviceName(ConfigReader.getProperty("deviceName"))
+                .setAutomationName(ConfigReader.getProperty("automationName"))
+                .setAppPackage(ConfigReader.getProperty("appPackage"))
+                .setAppActivity(ConfigReader.getProperty("appActivity"));
+
+        AndroidDriver driver = new AndroidDriver(
+                URI.create(ConfigReader.getProperty("appiumServerUrl")).toURL(),
+                options);
+
+        driver.activateApp(ConfigReader.getProperty("appPackage"));
+
+        driver.manage().timeouts().implicitlyWait(
+                Duration.ofSeconds(ConfigReader.getIntProperty("implicitWait")));
+
+        DRIVER.set(driver);
+    }
+
+    public static AndroidDriver getDriver() {
+        return DRIVER.get();
+    }
+
+    public static void quitDriver() {
+        AndroidDriver driver = DRIVER.get();
+        if (driver != null) {
+            driver.quit();
+            DRIVER.remove();
+        }
+    }
+}

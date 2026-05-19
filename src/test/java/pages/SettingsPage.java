@@ -1,7 +1,8 @@
 package pages;
 
-import base.BaseTest;
+import base.DriverFactory;
 import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import utils.ConfigReader;
 import utils.WaitUtils;
@@ -9,9 +10,13 @@ import utils.WaitUtils;
 /**
  * Page object representing Android Settings app interactions.
  */
-public class SettingsPage extends BaseTest {
+public class SettingsPage {
 
-        private final int EXPLICIT_WAIT = ConfigReader.getIntProperty("explicitWait");
+        private final int explicitWait = ConfigReader.getIntProperty("explicitWait");
+
+        private AndroidDriver driver() {
+                return DriverFactory.getDriver();
+        }
 
         // Locators
         private final By networkAndInternetLocator = AppiumBy.androidUIAutomator(
@@ -28,34 +33,29 @@ public class SettingsPage extends BaseTest {
 
         public void openNetworkAndInternet() {
                 WaitUtils.waitForClickable(
-                                driver,
+                                driver(),
                                 networkAndInternetLocator,
-                                EXPLICIT_WAIT).click();
+                                explicitWait).click();
         }
 
         public boolean isNetworkScreenDisplayed() {
                 return WaitUtils.waitForVisible(
-                                driver,
+                                driver(),
                                 internetLocator,
-                                EXPLICIT_WAIT).isDisplayed();
+                                explicitWait).isDisplayed();
         }
 
         public void searchFor(String searchTerm) {
 
                 WaitUtils.waitForClickable(
-                                driver,
+                                driver(),
                                 searchButtonLocator,
-                                EXPLICIT_WAIT).click();
+                                explicitWait).click();
 
                 WaitUtils.waitForVisible(
-                                driver,
+                                driver(),
                                 searchInputLocator,
-                                EXPLICIT_WAIT).click();
-
-                WaitUtils.waitForVisible(
-                                driver,
-                                searchInputLocator,
-                                EXPLICIT_WAIT).sendKeys(searchTerm);
+                                explicitWait).sendKeys(searchTerm);
         }
 
         public boolean isSearchResultDisplayed(String searchTerm) {
@@ -65,35 +65,34 @@ public class SettingsPage extends BaseTest {
                                                 "\")");
 
                 return WaitUtils.waitForVisible(
-                                driver,
+                                driver(),
                                 searchResultLocator,
-                                EXPLICIT_WAIT).isDisplayed();
+                                explicitWait).isDisplayed();
         }
 
         public void scrollTo(String settingName) {
 
                 WaitUtils.waitForClickable(
-                                driver,
+                                driver(),
                                 AppiumBy.androidUIAutomator(
                                                 "new UiScrollable(new UiSelector().scrollable(true))"
                                                                 + ".scrollIntoView("
                                                                 + "new UiSelector().textContains(\""
                                                                 + settingName
                                                                 + "\"))"),
-                                EXPLICIT_WAIT).click();
+                                explicitWait).click();
         }
 
         public void openSetting(String settingName) {
-                System.out.println("Trying to open setting: " + settingName);
                 By settingLocator = AppiumBy.androidUIAutomator(
                                 "new UiSelector().textContains(\""
                                                 + settingName
                                                 + "\")");
 
                 WaitUtils.waitForClickable(
-                                driver,
+                                driver(),
                                 settingLocator,
-                                EXPLICIT_WAIT).click();
+                                explicitWait).click();
         }
 
         public boolean isSettingScreenDisplayed(String settingName) {
@@ -104,8 +103,8 @@ public class SettingsPage extends BaseTest {
                                                 + "\")");
 
                 return WaitUtils.waitForVisible(
-                                driver,
+                                driver(),
                                 screenLocator,
-                                EXPLICIT_WAIT).isDisplayed();
+                                explicitWait).isDisplayed();
         }
 }

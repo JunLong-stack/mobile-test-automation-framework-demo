@@ -58,11 +58,12 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 
 ```
 src/test/java
-├── base              # AndroidDriver lifecycle (setUp / tearDown)
-│   └── BaseTest.java
+├── base              # Thread-safe AndroidDriver lifecycle (ThreadLocal)
+│   └── DriverFactory.java
 ├── pages             # Page objects (one class per screen)
 │   └── SettingsPage.java
-├── stepdefinitions   # Cucumber glue — thin layer over page objects
+├── stepdefinitions   # Cucumber glue — hooks + step definitions
+│   ├── Hooks.java              # @Before init, @After teardown + screenshot
 │   └── SettingSteps.java
 ├── runner            # Cucumber JUnit runner with @CucumberOptions
 │   └── TestRunner.java
@@ -79,10 +80,11 @@ src/test/resources
 
 **Design intent:**
 
-- **Page objects** know *how* to interact with the UI; they expose intent-revealing methods (`openNetworkAndInternet`, `searchFor`, `scrollTo`).
+- **`DriverFactory`** owns the Appium driver lifecycle via a `ThreadLocal<AndroidDriver>` — one driver per thread, ready for parallel scenario execution.
+- **`Hooks`** wraps each scenario in `@Before` (init driver) / `@After` (teardown + failure screenshot), keeping step definitions free of boilerplate.
+- **Page objects** know *how* to interact with the UI; they expose intent-revealing methods (`openNetworkAndInternet`, `searchFor`, `scrollTo`) and pull the current driver from `DriverFactory` — no inheritance from test bases.
 - **Step definitions** stay thin — they translate Gherkin into page-object calls and assertions, nothing more.
 - **Utilities** are stateless and reusable across pages.
-- **`BaseTest`** owns the Appium driver lifecycle so test classes don't repeat boilerplate.
 
 ---
 
@@ -204,9 +206,7 @@ It ships with every Android emulator, has no licensing or APK distribution conce
 
 ## Roadmap
 
-- [ ] Replace `System.out` debug prints with SLF4J + Logback
-- [ ] Extract `DriverFactory` so `SettingsPage` no longer extends `BaseTest`
-- [ ] Parallel-execution-ready driver (ThreadLocal)
+- [ ] SLF4J + Logback for structured logging
 - [ ] Bump `appium-java-client` and `selenium-java` to current
 - [ ] Add a sample iOS configuration to demonstrate cross-platform structure
 
