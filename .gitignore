@@ -26,6 +26,9 @@ replay_pid*
 # Maven build output
 target/
 
+# Allure CLI cache (downloaded by allure-maven plugin)
+.allure/
+
 # IDE files
 .vscode/
 .idea/
