@@ -7,7 +7,7 @@
 [![Cucumber](https://img.shields.io/badge/Cucumber-7.15-23D96C?logo=cucumber)](https://cucumber.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight, scalable Android UI test automation framework built with **Java 21**, **Appium**, **Cucumber**, and **JUnit 4**. Designed to demonstrate maintainable mobile-automation engineering — clear separation of concerns, reusable utilities, and config-driven setup — rather than test depth on a single app.
+A lightweight, scalable Android UI test automation framework built with **Java 21**, **Appium**, **Cucumber**, and the **JUnit 5 Platform**. Designed to demonstrate maintainable mobile-automation engineering — clear separation of concerns, reusable utilities, config-driven setup, and parallel-ready execution — rather than test depth on a single app.
 
 The framework drives the native Android **Settings** app on an emulator as a realistic, dependency-free target.
 
@@ -48,7 +48,7 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | Build            | Maven                               |
 | Mobile driver    | Appium 2.x (UiAutomator2) — `java-client` 9.4 |
 | BDD              | Cucumber 7.22                       |
-| Test runner      | JUnit 4 + Maven Surefire            |
+| Test runner      | JUnit 5 Platform Suite + Maven Surefire |
 | Reporting        | Allure 2.29 + Cucumber HTML         |
 | Logging          | SLF4J + Logback                     |
 | Static analysis  | Checkstyle                          |
@@ -69,7 +69,7 @@ src/test/java
 ├── stepdefinitions   # Cucumber glue — hooks + step definitions
 │   ├── Hooks.java              # @Before init, @After teardown + screenshot
 │   └── SettingSteps.java
-├── runner            # Cucumber JUnit runner with @CucumberOptions
+├── runner            # JUnit 5 @Suite entry point for the Cucumber engine
 │   └── TestRunner.java
 └── utils             # Cross-cutting helpers
     ├── ConfigReader.java       # loads config.properties
@@ -166,6 +166,16 @@ Run a subset by Cucumber tag:
 
 ```bash
 mvn clean test -Dcucumber.filter.tags="@e2e and @android"
+```
+
+### Parallel Execution
+
+Runtime options live in [`src/test/resources/junit-platform.properties`](src/test/resources/junit-platform.properties) — glue, tag filter, report plugins, and parallelism. Parallel execution is **enabled** and backed by the `ThreadLocal<AndroidDriver>` in `DriverFactory`, so each scenario runs against its own thread-confined driver.
+
+Parallelism defaults to `1` (sequential) because every Android session needs its own device or emulator. On a multi-device setup, bump it to match the number of connected devices:
+
+```bash
+mvn clean test -Dcucumber.execution.parallel.config.fixed.parallelism=3
 ```
 
 ---

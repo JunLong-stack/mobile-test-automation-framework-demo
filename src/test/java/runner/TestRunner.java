@@ -1,15 +1,16 @@
 package runner;
 
-import org.junit.runner.RunWith;
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Cucumber.class)
-@CucumberOptions(features = "classpath:features", glue = { "stepdefinitions" }, tags = "@e2e", plugin = {
-                "pretty",
-                "html:target/cucumber-reports/cucumber.html",
-                "json:target/cucumber-reports/cucumber.json",
-                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
-}, monochrome = true)
+/**
+ * JUnit Platform suite entry point for the Cucumber engine.
+ * Runtime options (glue, tags, plugins, parallel execution) are
+ * configured in src/test/resources/junit-platform.properties.
+ */
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")
 public class TestRunner {
 }

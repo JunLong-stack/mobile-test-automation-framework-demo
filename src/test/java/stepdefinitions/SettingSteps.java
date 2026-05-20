@@ -3,8 +3,9 @@ package stepdefinitions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.Assert;
 import pages.SettingsPage;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SettingSteps {
 
@@ -23,7 +24,7 @@ public class SettingSteps {
 
     @Then("the Network and internet screen should be displayed")
     public void theNetworkAndInternetScreenShouldBeDisplayed() {
-        Assert.assertTrue(
+        assertTrue(
                 settingsPage.isNetworkScreenDisplayed());
     }
 
@@ -34,7 +35,7 @@ public class SettingSteps {
 
     @Then("{string} search results should be displayed")
     public void searchResultsShouldBeDisplayed(String searchTerm) {
-        Assert.assertTrue(
+        assertTrue(
                 settingsPage.isSearchResultDisplayed(searchTerm));
     }
 
@@ -45,7 +46,7 @@ public class SettingSteps {
 
     @Then("the {string} settings screen should be displayed")
     public void theSettingScreenShouldBeDisplayed(String settingName) {
-        Assert.assertTrue(
+        assertTrue(
                 settingsPage.isSettingScreenDisplayed(settingName));
     }
 }
