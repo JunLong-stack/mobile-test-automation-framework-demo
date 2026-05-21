@@ -22,6 +22,6 @@ Feature: Android Settings automation demo
     Then the "<section>" settings screen should be displayed
 
     Examples:
-      | section |
-      | System  |
-      | Storage |
+      | section     |
+      | System      |
+      | About phone |
