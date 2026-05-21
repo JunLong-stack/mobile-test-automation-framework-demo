@@ -170,12 +170,16 @@ mvn clean test -Dcucumber.filter.tags="@e2e and @android"
 
 ### Parallel Execution
 
-Runtime options live in [`src/test/resources/junit-platform.properties`](src/test/resources/junit-platform.properties) — glue, tag filter, report plugins, and parallelism. Parallel execution is **enabled** and backed by the `ThreadLocal<AndroidDriver>` in `DriverFactory`, so each scenario runs against its own thread-confined driver.
+Runtime options live in [`src/test/resources/junit-platform.properties`](src/test/resources/junit-platform.properties) — glue, tag filter, report plugins, and parallel settings.
 
-Parallelism defaults to `1` (sequential) because every Android session needs its own device or emulator. On a multi-device setup, bump it to match the number of connected devices:
+The framework is **parallel-ready**: `DriverFactory` keeps one `AndroidDriver` per thread (`ThreadLocal`), so scenarios are thread-confined. Parallel execution is **off by default** so the suite runs out-of-the-box against a single emulator — multiple UiAutomator2 sessions on one device cannot initialise their instrumentation simultaneously.
+
+On a multi-device setup, opt in at runtime and match the parallelism to the number of connected devices:
 
 ```bash
-mvn clean test -Dcucumber.execution.parallel.config.fixed.parallelism=3
+mvn clean test \
+  -Dcucumber.execution.parallel.enabled=true \
+  -Dcucumber.execution.parallel.config.fixed.parallelism=3
 ```
 
 ---
