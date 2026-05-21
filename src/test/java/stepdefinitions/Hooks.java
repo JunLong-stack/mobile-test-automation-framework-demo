@@ -20,13 +20,13 @@ public class Hooks {
 
     private static final Logger log = LoggerFactory.getLogger(Hooks.class);
 
-    @Before
+    @Before("@e2e")
     public void initDriver(Scenario scenario) throws MalformedURLException {
         log.info("Starting scenario: {}", scenario.getName());
         DriverFactory.initDriver();
     }
 
-    @After
+    @After("@e2e")
     public void tearDownScenario(Scenario scenario) {
         AndroidDriver driver = DriverFactory.getDriver();
 

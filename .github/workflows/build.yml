@@ -46,3 +46,21 @@ jobs:
 
       - name: Checkstyle
         run: mvn -B checkstyle:check
+
+  api-tests:
+    name: REST Assured API tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run API scenarios (no emulator needed)
+        run: mvn -B test -Dcucumber.filter.tags=@api

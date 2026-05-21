@@ -48,6 +48,7 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | Language         | Java 21                             |
 | Build            | Maven                               |
 | Mobile driver    | Appium 2.x (UiAutomator2) — `java-client` 9.4 |
+| API testing      | REST Assured 5.5                    |
 | BDD              | Cucumber 7.22                       |
 | Test runner      | JUnit 5 Platform Suite + Maven Surefire |
 | Reporting        | Allure 2.29 + Cucumber HTML         |
@@ -68,8 +69,9 @@ src/test/java
 ├── pages             # Page objects (one class per screen)
 │   └── SettingsPage.java
 ├── stepdefinitions   # Cucumber glue — hooks + step definitions
-│   ├── Hooks.java              # @Before init, @After teardown + screenshot
-│   └── SettingSteps.java
+│   ├── Hooks.java              # @Before("@e2e") init, @After teardown + screenshot
+│   ├── SettingSteps.java       # UI (Appium) steps
+│   └── ApiSteps.java           # API (REST Assured) steps
 ├── runner            # JUnit 5 @Suite entry point for the Cucumber engine
 │   └── TestRunner.java
 └── utils             # Cross-cutting helpers
@@ -79,8 +81,10 @@ src/test/java
 
 src/test/resources
 ├── features
-│   └── settings-navigation.feature
-└── config.properties
+│   ├── settings-navigation.feature       # @e2e UI scenarios
+│   └── api/jsonplaceholder-api.feature   # @api REST scenarios
+├── config.properties
+└── junit-platform.properties
 ```
 
 **Design intent:**
@@ -88,22 +92,35 @@ src/test/resources
 - **`DriverFactory`** owns the Appium driver lifecycle via a `ThreadLocal<AndroidDriver>` — one driver per thread, ready for parallel scenario execution.
 - **`Hooks`** wraps each scenario in `@Before` (init driver) / `@After` (teardown + failure screenshot), keeping step definitions free of boilerplate.
 - **Page objects** know *how* to interact with the UI; they expose intent-revealing methods (`openNetworkAndInternet`, `searchFor`, `scrollTo`) and pull the current driver from `DriverFactory` — no inheritance from test bases.
-- **Step definitions** stay thin — they translate Gherkin into page-object calls and assertions, nothing more.
+- **Step definitions** stay thin — they translate Gherkin into page-object calls and assertions, nothing more. `ApiSteps` adds a REST Assured layer alongside the UI steps, sharing the same Cucumber/JUnit 5 runner.
 - **Utilities** are stateless and reusable across pages.
 
 ---
 
 ## Test Coverage
 
-The current feature file demonstrates three distinct interaction patterns:
+The suite spans two layers, each with its own Cucumber tag so they can run
+independently (`-Dcucumber.filter.tags=@e2e` or `@api`).
 
-| # | Scenario                          | Pattern Demonstrated                  |
-| - | --------------------------------- | ------------------------------------- |
-| 1 | Navigate to a settings category   | Element click + screen-state assert   |
-| 2 | Search for a settings option      | Parameterized step + dynamic locator  |
-| 3 | Scroll to and open hidden setting | `UiScrollable.scrollIntoView` pattern |
+**UI layer — `@e2e` (Appium):**
 
-All three are tagged `@e2e @android` and run via the same Cucumber runner.
+| Scenario                          | Pattern Demonstrated                       |
+| --------------------------------- | ------------------------------------------ |
+| Navigate to a settings category   | Element click + screen-state assert        |
+| Search for a settings option      | **`Scenario Outline`** (Bluetooth, Battery) |
+| Scroll to and open hidden setting | **`Scenario Outline`** + `UiScrollable.scrollIntoView` (System, Display) |
+
+**API layer — `@api` (REST Assured):**
+
+| Scenario                          | Pattern Demonstrated                       |
+| --------------------------------- | ------------------------------------------ |
+| Fetch all users                   | Status code + collection-size assert       |
+| Fetch a single user               | JSON field assertions                      |
+| Fetch a user by id                | **`Scenario Outline`** (data-driven GET)   |
+
+The UI scenarios run on a real emulator (in CI too); the API scenarios hit a
+public test API and need no emulator. The `@Before("@e2e")` hook scopes the
+Appium driver lifecycle to UI scenarios only, so API scenarios stay driver-free.
 
 ---
 
@@ -215,8 +232,8 @@ mvn allure:serve
 
 Two workflows run on every push:
 
-- **Build** — `mvn verify` (no emulator), a Cucumber dry-run that proves every step is glued, and Checkstyle.
-- **E2E** — boots an **API 33 Android emulator**, starts Appium, and runs the full Cucumber suite against the real Settings app. The Allure results, Cucumber HTML report, and Appium log are uploaded as downloadable artifacts on each run — open the latest [E2E run](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/e2e.yml) and grab them from the **Artifacts** section.
+- **Build** (three jobs, no emulator) — `mvn verify`, a Cucumber dry-run that proves every step is glued, Checkstyle, and the **`@api` REST Assured suite** run against a live test API.
+- **E2E** — boots an **API 33 Android emulator**, starts Appium, and runs the full `@e2e` Cucumber suite against the real Settings app. The Allure results, Cucumber HTML report, and Appium log are uploaded as downloadable artifacts on each run — open the latest [E2E run](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/e2e.yml) and grab them from the **Artifacts** section.
 
 ---
 
