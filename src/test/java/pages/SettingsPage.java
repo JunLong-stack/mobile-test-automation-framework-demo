@@ -4,6 +4,7 @@ import base.DriverFactory;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import utils.ConfigReader;
 import utils.WaitUtils;
 
@@ -46,16 +47,40 @@ public class SettingsPage {
         }
 
         public void searchFor(String searchTerm) {
-
-                WaitUtils.waitForClickable(
-                                driver(),
-                                searchButtonLocator,
-                                explicitWait).click();
+                openSearchView();
 
                 WaitUtils.waitForVisible(
                                 driver(),
                                 searchInputLocator,
                                 explicitWait).sendKeys(searchTerm);
+        }
+
+        /**
+         * Opens the Settings search view. Tapping the search entry launches a
+         * separate app (Settings Intelligence); the tap occasionally fails to
+         * trigger that transition, so retry while still on the home screen.
+         */
+        private void openSearchView() {
+                for (int attempt = 1; attempt <= 3; attempt++) {
+                        if (isVisible(searchButtonLocator, 3)) {
+                                WaitUtils.waitForClickable(
+                                                driver(),
+                                                searchButtonLocator,
+                                                explicitWait).click();
+                        }
+                        if (isVisible(searchInputLocator, 8)) {
+                                return;
+                        }
+                }
+        }
+
+        private boolean isVisible(By locator, int timeoutInSeconds) {
+                try {
+                        WaitUtils.waitForVisible(driver(), locator, timeoutInSeconds);
+                        return true;
+                } catch (TimeoutException e) {
+                        return false;
+                }
         }
 
         public boolean isSearchResultDisplayed(String searchTerm) {
