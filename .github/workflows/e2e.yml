@@ -9,6 +9,7 @@ jobs:
   android-e2e:
     name: Cucumber E2E on emulator
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -44,17 +45,7 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: |
-            appium --log appium.log --log-timestamp &
-            for i in $(seq 1 30); do
-              if curl -sf http://127.0.0.1:4723/status > /dev/null; then
-                echo "Appium is up"
-                break
-              fi
-              echo "Waiting for Appium... ($i)"
-              sleep 2
-            done
-            mvn -B test
+          script: bash scripts/run-e2e.sh
 
       - name: Upload Allure results
         if: always()
