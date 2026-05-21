@@ -12,7 +12,7 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <selenium.version>4.22.0</selenium.version>
+        <selenium.version>4.26.0</selenium.version>
         <junit.version>5.12.2</junit.version>
         <allure.adapter.version>2.29.1</allure.adapter.version>
         <allure.cli.version>2.34.1</allure.cli.version>
@@ -20,9 +20,11 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Pin Selenium to a release that still ships ContextAware and
-                 LocationContext — these interfaces are referenced by Appium 9.x
-                 but were removed in newer Selenium versions. -->
+            <!-- Pin Selenium to 4.26.0 (appium-java-client 9.4.0's declared
+                 floor). Older releases (e.g. 4.22) make HttpCommandExecutor's
+                 commandCodec field private, breaking Appium's executor at
+                 runtime; the newest releases (4.44+) drop ContextAware and
+                 break compilation. 4.26.0 satisfies both bounds. -->
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-bom</artifactId>
