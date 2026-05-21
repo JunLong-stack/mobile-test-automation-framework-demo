@@ -1,6 +1,7 @@
 # Mobile Test Automation Framework
 
 [![Build](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/build.yml/badge.svg)](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/build.yml)
+[![E2E](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/e2e.yml/badge.svg)](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/e2e.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue?logo=apachemaven)](https://maven.apache.org/)
 [![Appium](https://img.shields.io/badge/Appium-2.x-purple?logo=appium)](https://appium.io/)
@@ -52,7 +53,7 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 | Reporting        | Allure 2.29 + Cucumber HTML         |
 | Logging          | SLF4J + Logback                     |
 | Static analysis  | Checkstyle                          |
-| CI               | GitHub Actions (build + validate)   |
+| CI               | GitHub Actions (build, validate, emulator E2E) |
 | Target platform  | Android Emulator (API 30+)          |
 | Element insight  | Appium Inspector                    |
 
@@ -209,6 +210,13 @@ mvn allure:serve
 ```
 
 > _Sample report screenshot can be added at `docs/sample-report.png` and referenced here._
+
+### Continuous Integration
+
+Two workflows run on every push:
+
+- **Build** — `mvn verify` (no emulator), a Cucumber dry-run that proves every step is glued, and Checkstyle.
+- **E2E** — boots an **API 33 Android emulator**, starts Appium, and runs the full Cucumber suite against the real Settings app. The Allure results, Cucumber HTML report, and Appium log are uploaded as downloadable artifacts on each run — open the latest [E2E run](https://github.com/JunLong-stack/mobile-test-automation-framework-demo/actions/workflows/e2e.yml) and grab them from the **Artifacts** section.
 
 ---
 
