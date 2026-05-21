@@ -5,10 +5,11 @@
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)](https://openjdk.org/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue?logo=apachemaven)](https://maven.apache.org/)
 [![Appium](https://img.shields.io/badge/Appium-2.x-purple?logo=appium)](https://appium.io/)
-[![Cucumber](https://img.shields.io/badge/Cucumber-7.15-23D96C?logo=cucumber)](https://cucumber.io/)
+[![Cucumber](https://img.shields.io/badge/Cucumber-7.22-23D96C?logo=cucumber)](https://cucumber.io/)
+[![REST Assured](https://img.shields.io/badge/REST%20Assured-5.5-green)](https://rest-assured.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A lightweight, scalable Android UI test automation framework built with **Java 21**, **Appium**, **Cucumber**, and the **JUnit 5 Platform**. Designed to demonstrate maintainable mobile-automation engineering — clear separation of concerns, reusable utilities, config-driven setup, and parallel-ready execution — rather than test depth on a single app.
+A lightweight, scalable **UI + API** test automation framework built with **Java 21**, **Appium**, **REST Assured**, **Cucumber**, and the **JUnit 5 Platform**. Designed to demonstrate maintainable automation engineering — clear separation of concerns, reusable utilities, config-driven setup, and parallel-ready execution — rather than test depth on a single app.
 
 The framework drives the native Android **Settings** app on an emulator as a realistic, dependency-free target.
 
@@ -32,12 +33,12 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 
 ## Highlights
 
-- **Page Object Model** with clean separation between pages, steps, and infrastructure
-- **Config-driven** setup — no hardcoded device names, URLs, or timeouts
-- **Dynamic locators** built from BDD step parameters (search term, scroll target)
-- **Explicit-wait utilities** — no `Thread.sleep` anywhere
-- **Screenshot on failure** auto-captured and **embedded into the Cucumber HTML report**
-- **BDD** scenarios in Gherkin, executable through JUnit + Maven Surefire
+- **Two test layers in one suite** — Android UI (Appium) and REST API (REST Assured), separated by Cucumber tags (`@e2e` / `@api`)
+- **Runs end-to-end in CI** — GitHub Actions boots a real Android emulator, starts Appium, and executes the full UI suite; Allure reports ship as downloadable artifacts
+- **Page Object Model** with a thread-safe `ThreadLocal` driver factory — parallel-ready
+- **Data-driven BDD** — Gherkin `Scenario Outline`s running on the JUnit 5 Platform
+- **Config-driven**, explicit waits only (no `Thread.sleep`), with failure screenshots embedded into both the Allure and Cucumber reports
+- **Quality gates** — Checkstyle static analysis and a green build / validate / API pipeline
 
 ---
 
@@ -61,6 +62,23 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 ---
 
 ## Architecture
+
+```mermaid
+flowchart LR
+    R["JUnit 5 Suite<br/>(TestRunner)"] --> C{"Cucumber<br/>Engine"}
+    C -->|"@e2e"| UI["UI Step Defs"]
+    C -->|"@api"| API["API Step Defs"]
+    UI --> PO["Page Objects"]
+    PO --> DF["DriverFactory<br/>(ThreadLocal)"]
+    DF --> AP["Appium Server"]
+    AP --> EM[("Android Emulator")]
+    API --> RA["REST Assured"]
+    RA --> EXT[("Public Test API")]
+```
+
+One Cucumber/JUnit 5 runner drives two independent layers: the `@e2e` path
+exercises the Android UI through Appium, the `@api` path hits a REST API — no
+shared state, selectable by tag.
 
 ```
 src/test/java
@@ -133,7 +151,7 @@ Appium driver lifecycle to UI scenarios only, so API scenarios stay driver-free.
 | Node.js           | 18+ (required for Appium)                    |
 | Appium Server     | 2.x — `npm install -g appium`                |
 | UiAutomator2      | `appium driver install uiautomator2`         |
-| Android SDK       | platform-tools + an emulator (API 30+ tested)|
+| Android SDK       | platform-tools + an emulator (CI runs API 33)|
 | Emulator running  | Listening on `emulator-5554` (default)       |
 
 ---
@@ -159,8 +177,8 @@ Appium driver lifecycle to UI scenarios only, so API scenarios stay driver-free.
    appiumServerUrl=http://127.0.0.1:4723
    appPackage=com.android.settings
    appActivity=.Settings
-   implicitWait=12
-   explicitWait=12
+   implicitWait=5
+   explicitWait=25
    ```
 
 4. **Start the Android emulator** (any AVD with API 30+).
@@ -180,10 +198,11 @@ Run the full suite (compiles + executes the Cucumber runner):
 mvn clean test
 ```
 
-Run a subset by Cucumber tag:
+Run a single layer by Cucumber tag:
 
 ```bash
-mvn clean test -Dcucumber.filter.tags="@e2e and @android"
+mvn clean test -Dcucumber.filter.tags="@e2e"   # UI suite (needs an emulator)
+mvn clean test -Dcucumber.filter.tags="@api"   # API suite (no emulator)
 ```
 
 ### Parallel Execution
@@ -226,7 +245,7 @@ mvn allure:report         # generates target/allure-report/index.html
 mvn allure:serve
 ```
 
-> _Sample report screenshot can be added at `docs/sample-report.png` and referenced here._
+> **Add a report screenshot:** run the suite locally with an emulator, then `mvn allure:serve`, screenshot the dashboard, save it as `docs/sample-report.png`, and replace this line with `![Allure report](docs/sample-report.png)`.
 
 ### Continuous Integration
 
@@ -251,6 +270,10 @@ Locator priority used across the page objects:
 ### Why no `Thread.sleep`
 
 All synchronization goes through `WaitUtils.waitForVisible` / `waitForClickable`, which wrap `WebDriverWait` + `ExpectedConditions`. Timeouts are configured in `config.properties`, not buried in code.
+
+### Resilient interactions
+
+Cross-app transitions can drop a tap on a cold emulator — opening the Settings search launches a separate app (`com.google.android.settings.intelligence`). `SettingsPage.openSearchView` retries the tap while the entry is still on screen, rather than masking the timing with a longer sleep, so the suite stays green without flakiness.
 
 ### Why the `Settings` app
 
