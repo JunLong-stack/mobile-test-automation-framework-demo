@@ -34,11 +34,15 @@ public class DriverFactory {
                 .setAppPackage(ConfigReader.getProperty("appPackage"))
                 .setAppActivity(ConfigReader.getProperty("appActivity"));
 
+        // Start every scenario from a clean app state: relaunch the target
+        // activity even if the app is already running, and stop the app when
+        // the session ends. Prevents UI state leaking between scenarios.
+        options.setCapability("appium:forceAppLaunch", true);
+        options.setCapability("appium:shouldTerminateApp", true);
+
         AndroidDriver driver = new AndroidDriver(
                 URI.create(ConfigReader.getProperty("appiumServerUrl")).toURL(),
                 options);
-
-        driver.activateApp(ConfigReader.getProperty("appPackage"));
 
         driver.manage().timeouts().implicitlyWait(
                 Duration.ofSeconds(ConfigReader.getIntProperty("implicitWait")));
