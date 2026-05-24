@@ -26,7 +26,6 @@ The framework drives the native Android **Settings** app on an emulator as a rea
 - [Running Tests](#running-tests)
 - [Reports & Screenshots](#reports--screenshots)
 - [Design Decisions](#design-decisions)
-- [Roadmap](#roadmap)
 - [License](#license)
 
 ---
@@ -278,12 +277,6 @@ Cross-app transitions can drop a tap on a cold emulator — opening the Settings
 ### Why the `Settings` app
 
 It ships with every Android emulator, has no licensing or APK distribution concerns, and exposes enough surface area (navigation, search, scroll, dynamic content) to exercise the framework realistically.
-
----
-
-## Roadmap
-
-- [ ] Add a sample iOS configuration to demonstrate cross-platform structure
 
 ---
 
