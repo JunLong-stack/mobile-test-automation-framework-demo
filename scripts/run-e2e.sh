@@ -20,9 +20,10 @@ for i in $(seq 1 30); do
   sleep 2
 done
 
-# Run the suite; capture the result so Appium is always cleaned up afterwards.
+# Run the @e2e UI suite; capture the result so Appium is always cleaned up
+# afterwards. The @api suite is exercised by a separate, emulator-free CI job.
 set +e
-mvn -B test
+mvn -B test -Dcucumber.filter.tags=@e2e
 TEST_EXIT=$?
 set -e
 

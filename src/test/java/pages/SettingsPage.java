@@ -5,6 +5,7 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
 import utils.ConfigReader;
 import utils.WaitUtils;
 
@@ -49,10 +50,16 @@ public class SettingsPage {
         public void searchFor(String searchTerm) {
                 openSearchView();
 
-                WaitUtils.waitForVisible(
+                // Wait for clickable (not just visible) and tap to guarantee
+                // focus before typing — the search EditText is briefly in the
+                // tree but not interactive while the search activity finishes
+                // loading, causing InvalidElementStateException on sendKeys.
+                WebElement input = WaitUtils.waitForClickable(
                                 driver(),
                                 searchInputLocator,
-                                explicitWait).sendKeys(searchTerm);
+                                explicitWait);
+                input.click();
+                input.sendKeys(searchTerm);
         }
 
         /**
